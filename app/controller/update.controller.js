@@ -122,18 +122,20 @@ exports.changePassword = (req, res) => {
   });
 };
 
-exports.updateUserPlan = (req, res) => {
-  const up_status = [
-    [1, req.body.cleanBox],
-    [2, req.body.mapBox],
-    [3, req.body.ptzBox],
-    [4, req.body.reportBox],
-    [5, req.body.laserBox],
-  ];
-  let updatePromises = up_status.map(([up_id, value]) => {
+exports.updateUserPlan = async (req, res) => {
+  const up_data = req.body.plan_info;
+  let updatePromises = Object.entries(up_data).map(([up_id, [status, expired_date]]) => {
+    if(!status){
+      expired_date = null;
+    }
+    else{
+      expired_date = new Date(expired_date);
+      expired_date = expired_date.toISOString();
+    }
     return Up.update(
       {
-        up_status: value,
+        up_status: status ? 1 : 0,
+        up_expired_at: expired_date,
       },
       {
         where: {
@@ -143,24 +145,21 @@ exports.updateUserPlan = (req, res) => {
       }
     );
   });
-  Promise.all(updatePromises)
-    .then(() => {
-      User.findByPk(req.body.user_id, {
-        attributes: ["user_username", "user_email"],
-      }).then((user) => {
-        logUserActivity(
-          19,
-          "update user plan for username: " +
-            user.user_username +
-            " and email: " +
-            user.user_email +
-            ""
-        );
-        res.send({ message: "User was updated successfully!", resid: 3 });
-      });
-    })
-    .catch((err) => {
-      console.log("err", err);
-      res.status(500).send({ message: err.message });
+
+  try {
+    await Promise.all(updatePromises);
+    const user = await User.findByPk(req.body.user_id, {
+      attributes: ["user_username", "user_email"],
     });
+    logUserActivity(
+      19,
+      "update user plan for username: " +
+        user.user_username +
+        " and email: " +
+        user.user_email
+    );
+    res.status(200).send({ message: "User plan updated successfully.", resid:3 });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
 };

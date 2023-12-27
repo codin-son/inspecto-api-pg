@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const updateExpiredPlan = require("./app/tasks/updateExpiredPlan.tasks");
 const app = express();
 require('dotenv').config()
 var corsOptions = {
@@ -28,3 +29,6 @@ const PORT = process.env.PORT || 8888;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+
+// Call the function when the server starts
+updateExpiredPlan.updateExpiredPlans();

@@ -83,7 +83,7 @@ exports.signin = async (req, res, next) => {
         if (user.user_status == 1) {
           const token = jwt.sign(
             { uid: user.user_id, level: user.user_level },
-            process.env.TOKEN_KEY,
+            tokenkey,
             {
               algorithm: "HS256",
               allowInsecureKeySizes: true,
@@ -96,6 +96,8 @@ exports.signin = async (req, res, next) => {
               maxAge: 86400 * 1000, // 24 hours in milliseconds
               withCredentials: true,
               httpOnly: false,
+              sameSite: "none", // Add this line
+              secure: true, // Add this line
             })
             .status(200)
             .send({
@@ -105,10 +107,10 @@ exports.signin = async (req, res, next) => {
               success: true,
               message: "Login Success!",
             });
-        }else{
+        } else {
           res.status(401).send({
             accessToken: null,
-            message: "User is not active!",
+            message: "The user account is currently deactivated by the admin.",
           });
         }
         logUserActivity(user.user_id, "Login inspecto ui");
@@ -145,11 +147,10 @@ exports.signinAdmin = async (req, res, next) => {
             message: "Invalid Password!",
           });
         }
-        console.log(tokenkey);
 
         const token = jwt.sign(
           { uid: user.user_id, level: user.user_level },
-          process.env.TOKEN_KEY,
+          tokenkey,
           {
             algorithm: "HS256",
             allowInsecureKeySizes: true,
@@ -160,13 +161,14 @@ exports.signinAdmin = async (req, res, next) => {
         res
           .cookie("token", token, {
             maxAge: 86400 * 1000,
-            withCredentials: true,
             httpOnly: false,
+            domain: "192.168.88.2",
+            SameSite: "Strict", // Add this line
+            
           })
           .status(200)
           .send({
             id: user.user_id,
-            accessToken: token,
             success: true,
             message: "Login Success!",
           });
@@ -181,7 +183,7 @@ exports.signinAdmin = async (req, res, next) => {
 
 exports.signout = (req, res) => {
   const token = req.cookies.token;
-  jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
+  jwt.verify(token, tokenkey, async (err, data) => {
     if (data) {
       // get date
       let date = new Date();

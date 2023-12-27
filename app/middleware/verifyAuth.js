@@ -9,7 +9,7 @@ module.exports.userVerification = (req, res, next) => {
   if (!token) {
     return res.json({ status: false });
   }
-  jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
+  jwt.verify(token, tokenkey, async (err, data) => {
     if (err) {
       console.log("err", err);
       return res.json({ status: false });

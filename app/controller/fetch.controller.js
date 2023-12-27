@@ -58,7 +58,7 @@ exports.getUserInfoByID = (req, res) => {
 exports.getUserPlanByID = (req, res) => {
   const user_id = req.query.id;
   Up.findAll({
-    attributes:['p_id','up_status' ,'user_id'],
+    attributes:['p_id','up_status' ,'user_id', 'up_expired_at'],
     where: { user_id: user_id },
   })
     .then((users) => {

@@ -22,6 +22,9 @@ module.exports = (sequelize, Sequelize) => {
       up_status: {
         type: Sequelize.INTEGER
       },
+      up_expired_at: {
+        type: Sequelize.DATE
+      }
     },
     {
       timestamps: false, // disable automatic timestamp fields
