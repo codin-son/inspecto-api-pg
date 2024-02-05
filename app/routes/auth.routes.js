@@ -5,6 +5,14 @@ const controllerUpdate = require("../controller/update.controller");
 const { userVerification } = require("../middleware/verifyAuth");
 const { restartService } = require("../controller/restart.controller");
 const { shutdownPC } = require("../controller/shutdown.controller");
+const {
+  startScanning,
+  stopScanning,
+} = require("../controller/scanning.controller");
+const {
+  startMapping,
+  stopMapping,
+} = require("../controller/mapping.controller");
 module.exports = function (app) {
   app.use(function (req, res, next) {
     res.header(
@@ -66,6 +74,42 @@ module.exports = function (app) {
       res.send("Shutdown initiated");
     } catch (error) {
       res.status(500).send("Error initiating shutdown");
+    }
+  });
+
+  app.get("/startScanning", async (req, res) => {
+    try {
+      await startScanning();
+      res.send("Scanning started");
+    } catch (error) {
+      res.status(500).send("Error starting scanning");
+    }
+  });
+
+  app.get("/stopScanning", async (req, res) => {
+    try {
+      await stopScanning();
+      res.send("Scanning stopped");
+    } catch (error) {
+      res.status(500).send("Error stopping scanning");
+    }
+  });
+
+  app.get("/startMapping", async (req, res) => {
+    try {
+      await startMapping();
+      res.send("Mapping started");
+    } catch (error) {
+      res.status(500).send("Error starting mapping");
+    }
+  });
+
+  app.get("/stopMapping", async (req, res) => {
+    try {
+      await stopMapping();
+      res.send("Mapping stopped");
+    } catch (error) {
+      res.status(500).send("Error stopping mapping");
     }
   });
 };
