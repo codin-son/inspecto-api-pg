@@ -1,9 +1,7 @@
 const db = require("../model/index");
 const Log = db.log;
 
-async function logUserActivity(userId, activity) {
-  let date = new Date();
-  date = date.toISOString();
+async function logUserActivity(userId, activity, date) {
   console.log("logUserActivity",date);
   return await Log.create({
     user_id: userId,

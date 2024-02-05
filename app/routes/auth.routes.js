@@ -49,6 +49,8 @@ module.exports = function (app) {
 
   app.post("/signout", controller.signout);
 
+  app.post("/deleteUser", controllerUpdate.deleteUser);
+
   app.get("/restart", async (req, res) => {
     try {
       const output = await restartService("robot_bringup.service");

@@ -8,9 +8,8 @@ require("dotenv").config();
 const tokenkey = process.env.TOKEN_KEY;
 const logUserActivity = require("../utils/logHelper");
 exports.signup = (req, res) => {
-  let date = new Date();
-  date = date.toISOString();
 
+  let date = req.body.date;
   const pw = req.body.password;
   const con_pw = req.body.confirm_password;
   if (req.body.password.length < 8) {
@@ -35,15 +34,16 @@ exports.signup = (req, res) => {
     })
       .then((user) => {
         logUserActivity(
-          19,
+          1,
           "sign up new user for username: " +
             user.user_username +
             " and email: " +
             user.user_email +
-            ""
+            "",
+            date
         );
         res.send({ message: "User was registered successfully!", resid: 4 });
-        for (let i = 1; i <= 5; i++) {
+        for (let i = 1; i <= 6; i++) {
           Up.create({
             user_id: user.user_id,
             p_id: i,
@@ -59,15 +59,20 @@ exports.signup = (req, res) => {
 
 exports.signin = async (req, res, next) => {
   try {
+    let date = new Date();
+    if(req.body.date){
+      date = req.body.date;
+    }
     User.findOne({
       where: {
         user_username: req.body.username,
       },
     })
-      .then((user) => {
+      .then((user) => { 
         if (!user) {
           return res.status(404).send({ message: "User Not found." });
         }
+        
 
         var passwordIsValid = bcrypt.compareSync(
           req.body.password,
@@ -92,18 +97,18 @@ exports.signin = async (req, res, next) => {
           );
 
           res
-            .cookie("token", token, {
+            .cookie("token_app", token, {
+              sameSite: "Lax",
               maxAge: 86400 * 1000, // 24 hours in milliseconds
-              withCredentials: true,
               httpOnly: false,
-              sameSite: "none", // Add this line
-              secure: true, // Add this line
+              
             })
             .status(200)
             .send({
               id: user.user_id,
               status: user.user_status,
-              accessToken: token,
+              usernameVld: user.user_username,
+              email: user.user_email,
               success: true,
               message: "Login Success!",
             });
@@ -113,7 +118,7 @@ exports.signin = async (req, res, next) => {
             message: "The user account is currently deactivated by the admin.",
           });
         }
-        logUserActivity(user.user_id, "Login inspecto ui");
+        logUserActivity(user.user_id, "Login inspecto ui", date);
       })
       .catch((err) => {
         res.status(500).send({ message: err.message });
@@ -125,6 +130,10 @@ exports.signin = async (req, res, next) => {
 
 exports.signinAdmin = async (req, res, next) => {
   try {
+    let date = new Date();
+    if(req.body.date){
+      date = req.body.date;
+    }
     User.findOne({
       where: {
         user_username: req.body.username,
@@ -157,14 +166,12 @@ exports.signinAdmin = async (req, res, next) => {
             expiresIn: "24h", // 24 hours
           }
         );
-        logUserActivity(user.user_id, "Login inspecto user manager");
+        logUserActivity(user.user_id, "Login inspecto user manager", date);
         res
-          .cookie("token", token, {
+          .cookie("token_manager", token, {
+            sameSite: "Lax",
             maxAge: 86400 * 1000,
             httpOnly: false,
-            domain: "192.168.88.2",
-            SameSite: "Strict", // Add this line
-            
           })
           .status(200)
           .send({
@@ -182,19 +189,25 @@ exports.signinAdmin = async (req, res, next) => {
 };
 
 exports.signout = (req, res) => {
-  const token = req.cookies.token;
+  let token = req.headers["x-access-token"];
+  let token_name = "";
+  if (req.cookies.token_app) {
+    token = req.cookies.token_app;
+    token_name = "token_app";
+  } else if (req.cookies.token_manager) {
+    token = req.cookies.token_manager;
+    token_name = "token_manager";
+  }
+  let date = req.body.date;
   jwt.verify(token, tokenkey, async (err, data) => {
     if (data) {
-      // get date
-      let date = new Date();
-      date = date.toISOString();
       const log = await Log.create({
         user_id: data.uid,
         log_activity: "Logout",
         log_created_at: date,
       });
       if (log) {
-        res.clearCookie("token");
+        res.clearCookie(token_name);
         return res.json({ status: true });
       }
     }

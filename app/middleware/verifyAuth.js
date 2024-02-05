@@ -5,9 +5,15 @@ var jwt = require("jsonwebtoken");
 require("dotenv").config();
 const tokenkey = process.env.TOKEN_KEY;
 module.exports.userVerification = (req, res, next) => {
-  const token = req.cookies.token;
+  const fromwhere = req.body.fromwhere;
+  let token = req.headers["x-access-token"];
+  if(fromwhere == "app"){
+    token = req.cookies.token_app;
+  }else if (fromwhere == "manager") {
+    token = req.cookies.token_manager;
+  }
   if (!token) {
-    return res.json({ status: false });
+    return res.json({ status: "no cookie" });
   }
   jwt.verify(token, tokenkey, async (err, data) => {
     if (err) {

@@ -74,7 +74,7 @@ exports.getUserPlanByID = (req, res) => {
 
 
 exports.getNewUser = (req,res) => {
-  // get 5 new user 
+
   User.findAll({
     attributes: { exclude: ['user_password','user_status','user_updated_at','user_level'] },
     limit: 5,
