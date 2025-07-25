@@ -1,0 +1,12 @@
+[Unit]
+Description=Express.js Application
+
+[Service]
+Environment="NVM_DIR=/home/inspecto/.nvm"
+ExecStart=/home/inspecto/.nvm/versions/node/v18.20.8/bin/node /home/inspecto/.nvm/versions/node/v18.20.8/bin/nodemon /home/inspecto/inspecto-api/server.js
+WorkingDirectory=/home/inspecto/inspecto-api
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

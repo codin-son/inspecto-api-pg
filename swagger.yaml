@@ -1,0 +1,340 @@
+openapi: 3.1.0
+info:
+  title: Inspecto API
+  version: 1.0.0
+  description: API documentation for Inspecto backend
+servers:
+  - url: http://localhost:5055
+paths:
+  /signup:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSignup'
+      responses:
+        '200':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  resid:
+                    type: integer
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+  /signin:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSignin'
+      responses:
+        '200':
+          description: Login success
+        '401':
+          description: Unauthorized
+  /signinAdmin:
+    post:
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSignin'
+      responses:
+        '200':
+          description: Login success
+        '401':
+          description: Unauthorized
+  /getAllUser:
+    get:
+      summary: Get all users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /getAllLog:
+    get:
+      summary: Get all logs
+      responses:
+        '200':
+          description: List of logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Log'
+  /getNewLog:
+    get:
+      summary: Get latest logs
+      responses:
+        '200':
+          description: List of recent logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Log'
+  /getNewUser:
+    get:
+      summary: Get latest users
+      responses:
+        '200':
+          description: List of recent users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /getTotalUser:
+    get:
+      summary: Get total user count
+      responses:
+        '200':
+          description: Total user count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalUser:
+                    type: integer
+  /getTotalLog:
+    get:
+      summary: Get total log count
+      responses:
+        '200':
+          description: Total log count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalLog:
+                    type: integer
+  /getUserInfoByID:
+    get:
+      summary: Get user info by ID
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: User info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /getUserPlanByID:
+    get:
+      summary: Get user plan by user ID
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: User plan
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPrivilege'
+  /updateUserInfo:
+    put:
+      summary: Update user info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated
+        '400':
+          description: Bad request
+  /updateUserPlan:
+    put:
+      summary: Update user plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPlanUpdate'
+      responses:
+        '200':
+          description: User plan updated
+        '400':
+          description: Bad request
+  /deleteUser:
+    delete:
+      summary: Delete user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                date:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: User deleted
+        '400':
+          description: Bad request
+  /startScanning:
+    get:
+      summary: Start scanning process
+      responses:
+        '200':
+          description: Scanning started
+  /stopScanning:
+    get:
+      summary: Stop scanning process
+      responses:
+        '200':
+          description: Scanning stopped
+  /startMapping:
+    get:
+      summary: Start mapping process
+      responses:
+        '200':
+          description: Mapping started
+  /stopMapping:
+    get:
+      summary: Stop mapping process
+      responses:
+        '200':
+          description: Mapping stopped
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        user_username:
+          type: string
+        user_email:
+          type: string
+        user_created_at:
+          type: string
+          format: date-time
+        user_status:
+          type: integer
+        user_updated_at:
+          type: string
+          format: date-time
+        user_company:
+          type: string
+        user_level:
+          type: integer
+    UserSignup:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        confirm_password:
+          type: string
+        date:
+          type: string
+          format: date-time
+    UserSignin:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        date:
+          type: string
+          format: date-time
+    UserUpdate:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        status:
+          type: integer
+        company:
+          type: string
+        user_id:
+          type: integer
+        date:
+          type: string
+          format: date-time
+    UserPlanUpdate:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        plan_info:
+          type: object
+        date:
+          type: string
+          format: date-time
+    UserPrivilege:
+      type: object
+      properties:
+        up_id:
+          type: integer
+        user_id:
+          type: integer
+        p_id:
+          type: integer
+        up_status:
+          type: integer
+        up_expired_at:
+          type: string
+          format: date-time
+    Log:
+      type: object
+      properties:
+        log_id:
+          type: integer
+        log_activity:
+          type: string
+        log_created_at:
+          type: string
+          format: date-time
+        user_id:
+          type: integer

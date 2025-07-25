@@ -1,6 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const swaggerUi = require('swagger-ui-express');
+const fs = require('fs');
+const yaml = require('js-yaml');
 const updateExpiredPlan = require("./app/tasks/updateExpiredPlan.tasks");
 const app = express();
 require('dotenv').config()
@@ -22,10 +25,12 @@ app.use(cookieParser());
 
 // routes
 require('./app/routes/auth.routes')(app);
+const swaggerDocument = yaml.load(fs.readFileSync('./swagger.yaml', 'utf8'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8888;
+const PORT = process.env.PORT || 5555;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
